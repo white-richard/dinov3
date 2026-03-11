@@ -1,4 +1,4 @@
-:new: [2026-03-10] :fire: The [Canopy Height Maps v2 (CHMv2) model](https://arxiv.org/abs/2603.06382) and inference code are now available (more details on downloading the model weights and using the code [here](#canopy-height-maps-v2-chmv2)). Building on our original high-resolution canopy height maps released in 2024, CHMv2 delivers substantial improvements in accuracy, detail, and global consistency by leveraging DINOv3
+:new: [2026-03-10] :fire: The [Canopy Height Maps v2 (CHMv2) model](https://arxiv.org/abs/2603.06382) and inference code are now available (more details on downloading the model weights and using the code [here](#canopy-height-maps-v2-chmv2)). The model weights are also available in [Hugging Face Hub](https://huggingface.co/facebook/dinov3-vitl16-chmv2-dpt-head) and [supported](https://github.com/huggingface/transformers/blob/main/docs/source/en/model_doc/chmv2.md) by the Hugging Face [Transformers](https://huggingface.co/docs/transformers/index) library. Building on our original high-resolution canopy height maps released in 2024, CHMv2 delivers substantial improvements in accuracy, detail, and global consistency by leveraging DINOv3
 
 [2025-11-20] Distillation code and configurations for ConvNeXt backbones are now released!
 
@@ -802,6 +802,8 @@ Piotr Bojanowski, Camille Couprie
 
 [ :scroll: [`Paper`](https://arxiv.org/abs/2603.06382)] [ :newspaper: [`Blog`](http://ai.meta.com/blog/world-resources-institute-dino-canopy-height-maps-v2)]
 
+### CHMv2 model loading (via PyTorch [Hub](https://docs.pytorch.org/docs/stable/hub.html))
+
 :information_source: Please follow the link provided below to get access to the CHMv2 model weights: once accepted, an e-mail will be sent with the URL pointing to the available model weights. The URL can then be used to either:
 - download the model weights to a local filesystem and point `torch.hub.load()` to these local weights via the `weights` parameters, or
 - directly invoke `torch.hub.load()` to download and load a backbone from its URL.
@@ -830,6 +832,30 @@ chmv2_model = torch.hub.load(
 Refer to this [notebook](notebooks/chmv2_inference.ipynb) for an example of how to use the DINOv3 + CHMv2 model.
 
 This [notebook](notebooks/chmv2_dataset_exploration.ipynb) can be used to download inference data from the existing global dataset stored on aws.
+
+### CHMv2 model loading (via Hugging Face [Transformers](https://huggingface.co/docs/transformers/))
+
+The CHMv2 model is also available on [Hugging Face Hub](https://huggingface.co/facebook/dinov3-vitl16-chmv2-dpt-head) and supported via the Hugging Face [Transformers](https://huggingface.co/docs/transformers/index) library. Please refer to the corresponding documentation for usage, but below is a short example that demonstrates how to obtain canopy height predictions on a sample image.
+
+```python
+from PIL import Image
+import torch
+
+from transformers import AutoModelForDepthEstimation, AutoImageProcessor
+
+processor = AutoImageProcessor.from_pretrained("facebook/dinov3-vitl16-chmv2-dpt-head")
+model = AutoModelForDepthEstimation.from_pretrained("facebook/dinov3-vitl16-chmv2-dpt-head")
+
+image = Image.open("image.tif")
+inputs = processor(images=image, return_tensors="pt")
+
+with torch.no_grad():
+    outputs = model(**inputs)
+
+depth = processor.post_process_depth_estimation(
+    outputs, target_sizes=[(image.height, image.width)]
+)[0]["predicted_depth"]
+```
 
 ## License
 
