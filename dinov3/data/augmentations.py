@@ -155,12 +155,8 @@ class DataAugmentationDINO(object):
             self.global_transfo2 = v2.Compose([resize_global, global_transfo2_extra, self.normalize])
             self.local_transfo = v2.Compose([local_transfo_extra, self.normalize])
         else:
-            self.global_transfo1 = v2.Compose(
-                [resize_global, color_jittering, global_transfo1_extra, self.normalize]
-            )
-            self.global_transfo2 = v2.Compose(
-                [resize_global, color_jittering, global_transfo2_extra, self.normalize]
-            )
+            self.global_transfo1 = v2.Compose([resize_global, color_jittering, global_transfo1_extra, self.normalize])
+            self.global_transfo2 = v2.Compose([resize_global, color_jittering, global_transfo2_extra, self.normalize])
             self.local_transfo = v2.Compose([color_jittering, local_transfo_extra, self.normalize])
 
     def __call__(self, image):
